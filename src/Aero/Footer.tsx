@@ -7,14 +7,14 @@ export const Footer: React.FC = () => {
       data-purpose="social-links"
     >
       <div className="flex flex-col md:flex-row justify-between items-center w-full px-6 md:px-8 py-8 max-w-7xl mx-auto gap-4">
-        <div className="font-bold text-lg text-[#006080] tracking-tight">AeroFolio</div>
+        <div className="font-bold text-lg text-[#006080] tracking-tight">Santiago Suarez</div>
         <p className="text-sm text-[#3c494e]/90 text-center md:text-left md:flex-1 md:px-6">
-          © {new Date().getFullYear()} AeroFolio. Built with Glass & Light.
+           {new Date().getFullYear()} Portfolio. Built with Glass & Light.
         </p>
         <div className="flex flex-wrap items-center justify-center gap-3">
           <a
             className="glossy-pill bg-white/40 px-6 py-2 flex items-center gap-2 text-[#0b4a5f] hover:bg-[#00d4ff] hover:text-white"
-            href="#"
+            href="https://github.com/SantiagoSu15"
             aria-label="GitHub"
           >
             <svg className="w-4 h-4 shrink-0" fill="currentColor" viewBox="0 0 24 24">
@@ -24,7 +24,7 @@ export const Footer: React.FC = () => {
           </a>
           <a
             className="glossy-pill bg-white/40 px-6 py-2 flex items-center gap-2 text-[#0b4a5f] hover:bg-[#00d4ff] hover:text-white"
-            href="#"
+            href="https://www.linkedin.com/in/santiago-suarez-47a682338/  "
             aria-label="LinkedIn"
           >
             <svg className="w-4 h-4 shrink-0" fill="currentColor" viewBox="0 0 24 24">
