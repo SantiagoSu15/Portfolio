@@ -4,7 +4,6 @@ import { InfoButton } from "./infoButton";
 import { AboutSlide } from "./aboutSlide";
 import { Footer } from "./Footer";
 import { MidSection } from "./midSection";
-import { SiteBranding } from "./siteBranding";
 
 
 export const MainPage: React.FC = () => {
