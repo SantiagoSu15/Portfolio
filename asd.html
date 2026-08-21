@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AeroFolio - Dark Aero Edition</title>
+<!-- Tailwind CSS CDN -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Google Fonts: Humanist Sans style (Segoe UI / Open Sans) -->
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<style data-purpose="frutiger-aero-base">
+    :root {
+      --aqua-bright: #00d4ff;
+      --aqua-accent: #b3f0ff;
+      --aqua-deep: #003d4d;
+      --glass-dark: rgba(0, 0, 0, 0.45);
+      --glass-border: rgba(255, 255, 255, 0.15);
+      --cyan-accent: #00f2ff;
+    }
+
+    body {
+      font-family: 'Open Sans', 'Segoe UI', Tahoma, sans-serif;
+      background: linear-gradient(135deg, #020617 0%, #080b1a 40%, #020617 100%);
+      min-height: 100vh;
+      overflow-x: hidden;
+      color: #e2e8f0;
+    }
+
+    /* Aurora & Bokeh Background Elements - Dark Mode */
+    .aurora-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBHsB4Fu_1XqsHzeqJPo8Rgw7nZwDmQNjY4xwxc2JuCoxi8TLPs4eU3JjtOQ27nMT1oNJ04lxx6SiK9l2YMRNRrWwTe-ra338Ykw56z5mbsWVbKs6phfQ3SC3Anj70HvsqcDraEukb4I1kcAs2danJcIEdqM2hiuHWKhVFBcedTvvuUgOcNMIAYfoP2VfBflhRcmoSfLMTA6iupYOiZ-hi9BCxOdl6Ah_heSCsUl-Od9R543Js-zRlCzYs_dGQsHyUdtadKb6GqaupP');
+      background-size: cover;
+      background-position: center;
+      opacity: 0.2;
+      filter: blur(40px) brightness(0.5) hue-rotate(240deg);
+      mix-blend-mode: screen;
+    }
+
+    .bokeh-orb {
+      position: fixed;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(147, 51, 234, 0.2) 0%, rgba(0, 242, 255, 0) 70%);
+      pointer-events: none;
+      z-index: -1;
+      filter: blur(50px);
+    }
+
+    /* Glossy & Glass Effects - Darkened */
+    .glass-panel {
+      background: var(--glass-dark);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--glass-border);
+      box-shadow: 
+        inset 0 1px 1px rgba(255,255,255,0.1),
+        0 8px 32px rgba(0,0,0,0.4);
+    }
+
+    .glossy-pill {
+      background: linear-gradient(180deg, rgba(255,255,255,0.15) 0%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0.6) 100%);
+      border: 1px solid var(--glass-border);
+      border-radius: 9999px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3), inset 0 1px 1px rgba(255,255,255,0.2);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .glossy-pill:hover {
+      box-shadow: 0 0 20px rgba(0, 242, 255, 0.4);
+      border-color: rgba(0, 242, 255, 0.5);
+      transform: translateY(-2px);
+    }
+
+    /* Scrollbar Styling for Dark Aero look */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(0,0,0,0.3);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #006b80;
+      border-radius: 10px;
+      border: 2px solid #020617;
+    }
+
+    /* Modal Animation */
+    #project-modal {
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    #project-modal.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .modal-content {
+      transform: scale(0.95);
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    #project-modal.open .modal-content {
+      transform: scale(1);
+    }
+  </style>
+<style data-purpose="components">
+    /* Hero Aura */
+    .hero-text {
+      text-shadow: 0 0 20px rgba(0, 242, 255, 0.6), 0 0 5px rgba(255, 255, 255, 0.2);
+      letter-spacing: -0.02em;
+    }
+
+    /* Project Cards */
+    .project-card {
+      height: 120px;
+      border-radius: 60px 15px 15px 60px; /* Asymmetric pill/folder look */
+      overflow: hidden;
+      transition: all 0.3s ease;
+      position: relative;
+      cursor: pointer;
+    }
+    
+    .project-card:hover {
+      transform: scale(1.02);
+      box-shadow: 0 0 25px rgba(0, 242, 255, 0.3);
+      background: rgba(255, 255, 255, 0.05);
+      border-color: rgba(0, 242, 255, 0.4);
+    }
+
+    .project-thumb {
+      width: 100px;
+      height: 100px;
+      margin: 10px;
+      border-radius: 50%;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+      object-fit: cover;
+    }
+
+    /* Sliding Drawer */
+    #about-drawer {
+      transform: translateX(100%);
+      transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+      background: rgba(10, 15, 25, 0.85);
+    }
+    #about-drawer.open {
+      transform: translateX(0);
+    }
+    
+    /* Aqua Button Variant */
+    .glossy-pill-aqua {
+      background: linear-gradient(180deg, rgba(0,242,255,0.2) 0%, rgba(0,107,128,0.5) 50%, rgba(0,61,77,0.8) 100%);
+      border: 1px solid rgba(0, 242, 255, 0.4);
+      box-shadow: 0 4px 15px rgba(0, 242, 255, 0.2), inset 0 1px 2px rgba(255,255,255,0.3);
+    }
+    .glossy-pill-aqua:hover {
+      background: linear-gradient(180deg, rgba(0,242,255,0.3) 0%, rgba(0,138,166,0.6) 50%, rgba(0,82,102,0.9) 100%);
+      box-shadow: 0 0 25px rgba(0, 242, 255, 0.5);
+      border-color: rgba(0, 242, 255, 0.8);
+    }
+  </style>
+</head>
+<body class="p-6 md:p-12">
+<!-- BEGIN: Background Elements -->
+<div class="aurora-bg" data-purpose="background-aura"></div>
+<div class="bokeh-orb w-[400px] h-[400px] top-[-100px] left-[-100px]" data-purpose="bokeh"></div>
+<div class="bokeh-orb w-[300px] h-[300px] bottom-[-50px] right-[100px]" data-purpose="bokeh" style="background: radial-gradient(circle, rgba(0, 242, 255, 0.1) 0%, transparent 70%);"></div>
+<!-- END: Background Elements -->
+<!-- BEGIN: Top Left Branding -->
+<div class="fixed top-6 left-6 z-50">
+<div class="w-16 h-16 rounded-full glass-panel flex items-center justify-center p-1 glossy-pill overflow-hidden bg-black/40">
+<img alt="Logo" class="w-full h-full object-cover rounded-full opacity-90" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCUplB9izldwtwhHXAB2DFI8z-RmuQClvAWZs8YkGipXbpfNLIAwoqGWNH7lwtiPmv7w20QtGD-RNxYgXqh8jYMgLbgaDg6l8QwRnwpjSpU6WJEsiYf_Dw1jt5vTH0KIcD0xu75ndg73IHkcC-a5xig7ZQ3Z-9Xd7te2I3qLJ5H8UhhkINy7JY2plESn8MD7yq1Ij6Jp8jM7uxUbhBF7_EK3gw2IRx5z0e55IfUHk10CrJRZ0zpDTDC7TU3_cLpF_d9K4YhtGlwIq83"/>
+</div>
+</div>
+<!-- END: Top Left Branding -->
+<!-- BEGIN: Right Drawer Trigger -->
+<div class="fixed top-8 right-8 z-50">
+<button class="glossy-pill bg-slate-900/60 text-white px-6 py-2 flex items-center gap-2 font-semibold border-white/10" onclick="toggleDrawer()">
+<span class="w-2 h-2 bg-cyan-400 rounded-full animate-pulse shadow-[0_0_8px_#22d3ee]"></span>
+      About Me
+    </button>
+</div>
+<!-- END: Right Drawer Trigger -->
+<!-- BEGIN: Hero Section -->
+<main class="max-w-5xl mx-auto pt-20">
+<section class="text-center mb-16" data-purpose="hero-area">
+<h1 class="text-6xl font-bold hero-text text-white mb-2">AeroFolio</h1>
+<p class="text-xl opacity-70 font-medium text-cyan-300">Midnight Optimism &amp; Dark Skumorphism</p>
+</section>
+<!-- BEGIN: Projects Grid -->
+<section class="grid grid-cols-1 md:grid-cols-2 gap-6" data-purpose="projects-list" id="projects-container">
+<!-- Projects are injected via JS -->
+</section>
+<!-- END: Projects Grid -->
+</main>
+<!-- END: Hero Section -->
+<!-- BEGIN: About Drawer -->
+<aside class="fixed top-0 right-0 h-full w-full md:w-96 glass-panel z-[100] p-8 shadow-2xl" id="about-drawer">
+<div class="flex justify-between items-center mb-8">
+<h2 class="text-2xl font-bold text-cyan-400">User Profile</h2>
+<button class="text-4xl leading-none text-white/60 hover:text-white" onclick="toggleDrawer()">×</button>
+</div>
+<div class="flex flex-col items-center mb-8">
+<div class="w-24 h-24 rounded-full border-4 border-white/20 shadow-xl overflow-hidden mb-4">
+<img alt="Avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCsS1cGy46I3Oi7slCZojr94dpDYWyQbAxzz95PtwTtdruHyB7z5kKIrFXzlM6G52NhAZkPdPdSgnk6eoVHP6-5VXpu9ijmoVl3agu2j012PLYXDryM29puHdGwKY_JJzXNGSdM82SHMS93l74Vd8C06QSYS7-MA_jJAA2vwctMcg9AHqX6GBmZG5JOP812Y6uUStQk5q3g8ZmR9mlG6z0rq7rStBNy66UptM80TBx7YUPLzIpxn2aTiUNREqg_2NcVxqJMLLRCWzJS"/>
+</div>
+<h3 class="text-xl font-bold text-white">@victorpeep</h3>
+<p class="text-sm opacity-50">Joined Oct 2004</p>
+</div>
+<div class="space-y-6">
+<div class="p-4 rounded-xl bg-black/40 border border-white/10">
+<p class="text-sm leading-relaxed text-slate-300">
+          Passionate about the Frutiger Aero aesthetic—bringing back the glossy buttons, auroras, and optimism of the mid-2000s computing era.
+        </p>
+</div>
+<div class="flex flex-col gap-3">
+<div class="text-xs uppercase font-bold opacity-40 px-2 text-cyan-500">Recently Visited</div>
+<div class="space-y-2">
+<div class="p-2 rounded-lg bg-white/5 border border-white/5 flex items-center gap-3">
+<span class="w-8 h-8 rounded bg-cyan-900/50 border border-cyan-500/30 flex items-center justify-center text-cyan-400 text-xs">r/</span>
+<span class="text-slate-300">FrutigerAero</span>
+</div>
+<div class="p-2 rounded-lg bg-white/5 border border-white/5 flex items-center gap-3">
+<span class="w-8 h-8 rounded bg-purple-900/50 border border-purple-500/30 flex items-center justify-center text-purple-400 text-xs">r/</span>
+<span class="text-slate-300">EarthPorn</span>
+</div>
+</div>
+</div>
+</div>
+</aside>
+<!-- END: About Drawer -->
+<!-- BEGIN: Project Detail Modal -->
+<div class="fixed inset-0 z-[110] flex items-center justify-center p-4 sm:p-6" id="project-modal" style="background: rgba(2, 6, 23, 0.8); backdrop-filter: blur(8px);">
+<div class="modal-content glass-panel w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-2xl relative border-white/20 bg-[#0a1128]/80 shadow-[0_0_50px_rgba(0,242,255,0.15)] flex flex-col">
+<!-- Modal Header -->
+<div class="p-6 border-b border-white/10 flex justify-between items-start sticky top-0 bg-[#0a1128]/90 backdrop-blur-md z-10 rounded-t-2xl">
+<div>
+<h2 class="text-3xl font-bold text-white hero-text mb-1" id="modal-title">Project Title</h2>
+<p class="text-cyan-400 opacity-80 text-sm font-semibold uppercase tracking-wider" id="modal-subtitle">Project Subtitle</p>
+</div>
+<button class="w-10 h-10 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-white/60 hover:text-white transition-colors border border-white/10" onclick="closeModal()">
+<svg class="w-6 h-6" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</button>
+</div>
+<!-- Modal Body -->
+<div class="p-6 flex-1 flex flex-col gap-8">
+<!-- Video Container Placeholder -->
+<div class="w-full aspect-video rounded-xl overflow-hidden relative border-2 border-white/10 shadow-[0_0_30px_rgba(0,0,0,0.5)] group">
+<div class="absolute inset-0 bg-gradient-to-br from-cyan-900/40 to-blue-900/40 flex items-center justify-center">
+<div class="w-20 h-20 rounded-full glossy-pill-aqua flex items-center justify-center shadow-[0_0_30px_rgba(0,242,255,0.4)] group-hover:scale-110 transition-transform cursor-pointer">
+<svg class="w-8 h-8 text-white ml-1" fill="currentColor" viewbox="0 0 24 24"><path d="M8 5v14l11-7z"></path></svg>
+</div>
+</div>
+<!-- Iframe would go here -->
+<img alt="Video Placeholder" class="w-full h-full object-cover opacity-50 mix-blend-luminosity" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBifUUvsA9jYElN42naCHURVNfWk2hcQziXSXTtKDNldhVoG1xspXONvCs_K6HLaGZOz2lskSw4MMYU0whuqBxwf9GBTXkYpUhLlZTlle3ryzYw7PBp6Enn6uL4JmZntHfk3sIPiAMXZVN3EEJFiqQlDFc65fvj1jrPsRySRRKIZC4uiHtHU1BD2o8ZD31IzTeOECJiw0RtvJKcH0PrhaTNvSnpNeyUs9UA8XKkEB-mvOdx-ojYVLAwLg"/>
+</div>
+<!-- Description Area -->
+<div class="prose prose-invert max-w-none text-slate-300">
+<h3 class="text-xl font-semibold text-white mb-4 flex items-center gap-2">
+<span class="w-1.5 h-6 bg-cyan-400 rounded-full inline-block shadow-[0_0_8px_#22d3ee]"></span>
+          Project Overview
+        </h3>
+<p class="leading-relaxed text-lg mb-6" id="modal-description">
+          Detailed description goes here.
+        </p>
+<p class="leading-relaxed opacity-80">
+           This project aims to revitalize the classic web aesthetic with modern rendering techniques, providing a tactile, fluid experience that feels both nostalgic and futuristic.
+        </p>
+</div>
+<!-- Action Buttons -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-auto pt-4">
+<a class="glossy-pill glossy-pill-aqua px-6 py-3 flex items-center justify-center gap-2 font-bold text-white text-sm whitespace-nowrap" href="#">
+<svg class="w-5 h-5" fill="currentColor" viewbox="0 0 24 24"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"></path></svg>
+          Watch on YouTube
+        </a>
+<a class="glossy-pill bg-white/10 hover:bg-white/20 px-6 py-3 flex items-center justify-center gap-2 font-bold text-white text-sm whitespace-nowrap" href="#">
+<svg class="w-5 h-5" fill="currentColor" viewbox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"></path></svg>
+          GitHub Frontend
+        </a>
+<a class="glossy-pill bg-white/10 hover:bg-white/20 px-6 py-3 flex items-center justify-center gap-2 font-bold text-white text-sm whitespace-nowrap" href="#">
+<svg class="w-5 h-5" fill="currentColor" viewbox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"></path></svg>
+          GitHub Backend
+        </a>
+<a class="glossy-pill bg-[#006b80]/50 hover:bg-[#00d4ff]/40 px-6 py-3 flex items-center justify-center gap-2 font-bold text-white text-sm whitespace-nowrap border-[#00d4ff]/30" href="#">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+          Live Project
+        </a>
+</div>
+</div>
+</div>
+</div>
+<!-- END: Project Detail Modal -->
+<!-- BEGIN: Footer -->
+<footer class="mt-20 pb-12 flex justify-center gap-4" data-purpose="social-links">
+<a class="glossy-pill bg-black/40 px-6 py-2 flex items-center gap-2 hover:bg-cyan-500 hover:text-black border-white/10 text-white/80" href="#">
+<svg class="w-4 h-4" fill="currentColor" viewbox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"></path></svg>
+      GitHub
+    </a>
+<a class="glossy-pill bg-black/40 px-6 py-2 flex items-center gap-2 hover:bg-cyan-500 hover:text-black border-white/10 text-white/80" href="#">
+<svg class="w-4 h-4" fill="currentColor" viewbox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.761 0 5-2.239 5-5v-14c0-2.761-2.239-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"></path></svg>
+      LinkedIn
+    </a>
+</footer>
+<!-- END: Footer -->
+<script data-purpose="project-data">
+    // DATA STORE
+    const PROJECTS = [
+      {
+        id: 1,
+        title: "Skyline Dashboard",
+        subtitle: "Atmospheric depth and fluid transitions.",
+        description: "A comprehensive dashboard interface designed with deep atmospheric blues, smooth fluid animations, and a focus on layered depth mimicking the physical world. Built using React and Three.js for 3D elements.",
+        thumbnail: "https://placehold.co/100x100/003d4d/ffffff?text=Skyline",
+        url: "#"
+      },
+      {
+        id: 2,
+        title: "Aero Music",
+        subtitle: "Tactile player with glassy album art.",
+        description: "A music player concept that brings back the joy of physical media through digital means. Features highly reflective album artwork surfaces, satisfying 'clicky' play buttons, and vibrant audio visualizers.",
+        thumbnail: "https://placehold.co/100x100/003d4d/ffffff?text=Music",
+        url: "#"
+      },
+      {
+        id: 3,
+        title: "NatureLink",
+        subtitle: "Harmonizing tech with organic motifs.",
+        description: "An exploration into Eco-Frutiger Aero. This application blends lush green organic textures, lens flares, and water droplet effects with clean, functional user interfaces for environmental tracking.",
+        thumbnail: "https://placehold.co/100x100/003d4d/ffffff?text=Nature",
+        url: "#"
+      },
+      {
+        id: 4,
+        title: "Vista Explorer",
+        subtitle: "A Windows-inspired file navigation system.",
+        description: "A web-based file manager that pays homage to the Windows Vista era. Includes translucent window borders (Aero Glass), rich iconography, and a spatial approach to file organization.",
+        thumbnail: "https://placehold.co/100x100/003d4d/ffffff?text=Vista",
+        url: "#"
+      },
+      {
+        id: 5,
+        title: "Aqua Messenger",
+        subtitle: "Real-time chat with liquid bubble effects.",
+        description: "A messaging platform where interactions feel like interacting with water. Message bubbles morph and merge, and read receipts have a satisfying ripple effect. Powered by WebGL and WebSockets.",
+        thumbnail: "https://placehold.co/100x100/003d4d/ffffff?text=Aqua",
+        url: "#"
+      },
+      {
+        id: 6,
+        title: "Helios Weather",
+        subtitle: "Sun-soaked aesthetic with lens flares.",
+        description: "A weather application that doesn't just tell you the weather, it makes you feel it. Heavy use of cinematic lens flares, dynamic cloud rendering, and highly polished, glossy iconography.",
+        thumbnail: "https://placehold.co/100x100/003d4d/ffffff?text=Weather",
+        url: "#"
+      }
+    ];
+
+    // RENDER LOGIC
+    function renderProjects() {
+      const container = document.getElementById('projects-container');
+      container.innerHTML = PROJECTS.map(project => `
+        <div class="project-card glass-panel flex items-center bg-black/40 hover:bg-white/5 border-white/10" data-purpose="project-item" onclick="openModal(${project.id})">
+          <img src="${project.thumbnail}" alt="${project.title}" class="project-thumb">
+          <div class="pr-6">
+            <h3 class="font-bold text-lg text-white">${project.title}</h3>
+            <p class="text-sm opacity-60 line-clamp-1 text-slate-300">${project.subtitle}</p>
+            <span class="text-xs font-bold text-cyan-400 hover:text-cyan-200 transition-colors mt-1 inline-block">View Detailed Info &rarr;</span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // UI HANDLERS
+    function toggleDrawer() {
+      document.getElementById('about-drawer').classList.toggle('open');
+    }
+
+    function openModal(projectId) {
+      const project = PROJECTS.find(p => p.id === projectId);
+      if (!project) return;
+
+      document.getElementById('modal-title').textContent = project.title;
+      document.getElementById('modal-subtitle').textContent = project.subtitle;
+      document.getElementById('modal-description').textContent = project.description;
+      
+      document.getElementById('project-modal').classList.add('open');
+    }
+
+    function closeModal() {
+      document.getElementById('project-modal').classList.remove('open');
+    }
+
+    // Close modal on outside click
+    document.getElementById('project-modal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeModal();
+      }
+    });
+
+    // INITIALIZE
+    document.addEventListener('DOMContentLoaded', () => {
+      renderProjects();
+    });
+  </script>
+</body></html>
